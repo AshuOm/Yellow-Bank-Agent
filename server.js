@@ -23,7 +23,8 @@ app.get("/", (req, res) => {
     res.send("Yellow Bank Agent Running");
 });
 
-app.listen(5000, () => {
-    console.log("Yellow Bank Agent Running on port 5000");
-});
+const PORT = process.env.PORT || 5000;
 
+app.listen(PORT, () => {
+    console.log(`Yellow Bank Agent Running on port ${PORT}`);
+});
