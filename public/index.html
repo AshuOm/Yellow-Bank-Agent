@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Yellow Bank Agent</title>
+</head>
+<body>
+    <h2>Yellow Bank Loan Agent</h2>
+
+    <button onclick="getLoans()">View Loan Accounts</button>
+
+    <div id="result"></div>
+
+    <script>
+        async function getLoans() {
+            const res = await fetch("/loans/accounts");
+            const data = await res.json();
+            document.getElementById("result").innerHTML = JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+</html>
