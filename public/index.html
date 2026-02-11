@@ -1,21 +1,163 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Yellow Bank Agent</title>
+    <title>Yellow Bank Loan Agent</title>
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #f4f6f9;
+            padding: 30px;
+        }
+        .card {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 8px 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #facc15;
+            cursor: pointer;
+        }
+        input {
+            padding: 8px;
+            margin: 5px 0;
+            width: 200px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Yellow Bank Loan Agent</h2>
 
-    <button onclick="getLoans()">View Loan Accounts</button>
+<h2>Yellow Bank Loan Agent</h2>
 
-    <div id="result"></div>
+<div id="authSection">
+    <h3>Step 1: Authenticate</h3>
+    <input id="phone" placeholder="Enter Phone Number" /><br>
+    <input id="dob" placeholder="DD/MM/YYYY" /><br>
+    <button onclick="triggerOTP()">Generate OTP</button>
 
-    <script>
-        async function getLoans() {
-            const res = await fetch("/loans/accounts");
-            const data = await res.json();
-            document.getElementById("result").innerHTML = JSON.stringify(data, null, 2);
+    <div id="otpSection" style="display:none;">
+        <input id="otp" placeholder="Enter OTP" /><br>
+        <button onclick="verifyOTP()">Verify OTP</button>
+    </div>
+</div>
+
+<hr>
+
+<div id="loanSection" style="display:none;">
+    <h3>Your Loan Accounts</h3>
+    <div id="loanList"></div>
+</div>
+
+<div id="detailsSection"></div>
+
+<script>
+    let currentPhone = "";
+
+    async function triggerOTP() {
+        const phone = document.getElementById("phone").value;
+        const dob = document.getElementById("dob").value;
+
+        currentPhone = phone;
+
+        const res = await fetch("/auth/trigger-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone, dob })
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+            alert(data.error);
+            return;
         }
-    </script>
+
+        alert("Mock OTP is: " + data.otp);
+        document.getElementById("otpSection").style.display = "block";
+    }
+
+    async function verifyOTP() {
+        const otp = document.getElementById("otp").value;
+
+        const res = await fetch("/auth/verify-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone: currentPhone, otp })
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+            alert("Incorrect OTP");
+            return;
+        }
+
+        alert("Authenticated Successfully!");
+        document.getElementById("authSection").style.display = "none";
+        document.getElementById("loanSection").style.display = "block";
+
+        loadLoans();
+    }
+
+    async function loadLoans() {
+        const res = await fetch("/loans/accounts");
+        const loans = await res.json();
+
+        const container = document.getElementById("loanList");
+        container.innerHTML = "";
+
+        loans.forEach(loan => {
+            const card = document.createElement("div");
+            card.className = "card";
+
+            card.innerHTML = `
+                <strong>Loan ID:</strong> ${loan.loan_account_id}<br>
+                <strong>Type:</strong> ${loan.type}<br>
+                <strong>Tenure:</strong> ${loan.tenure} months<br>
+                <button onclick="loadDetails('${loan.loan_account_id}')">
+                    View Details
+                </button>
+            `;
+
+            container.appendChild(card);
+        });
+    }
+
+    async function loadDetails(id) {
+        const res = await fetch(`/loans/details/${id}`);
+        const data = await res.json();
+
+        document.getElementById("detailsSection").innerHTML = `
+            <div class="card">
+                <h3>Loan Details</h3>
+                Tenure: ${data.tenure} months<br>
+                Interest Rate: ${data.interest_rate}%<br>
+                Principal Pending: ₹${data.principal_pending}<br>
+                Interest Pending: ₹${data.interest_pending}<br>
+                Nominee: ${data.nominee}<br>
+                <button onclick="rateChat()">Rate our chat</button>
+            </div>
+        `;
+    }
+
+    async function rateChat() {
+        const rating = prompt("Rate our service (Good/Average/Bad):");
+        const feedback = prompt("Optional Feedback:");
+
+        await fetch("/csat/feedback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ rating, feedback })
+        });
+
+        alert("Thank you for your feedback!");
+    }
+</script>
+
 </body>
 </html>
