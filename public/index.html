@@ -8,14 +8,13 @@
         body {
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(-45deg, #f4f6f9, #e8ecf1, #fdf6e3, #fef3c7);
+            background: linear-gradient(-45deg, #f4f6f9, #e8ecf1, #fef3c7);
             background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            animation: gradientBG 12s ease infinite;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            transition: 0.4s;
         }
 
         @keyframes gradientBG {
@@ -24,29 +23,24 @@
             100% { background-position: 0% 50%; }
         }
 
-        .dark-mode {
-            background: #121212;
-            color: #fff;
-        }
-
         .container {
             width: 100%;
             max-width: 700px;
-            backdrop-filter: blur(10px);
-            background: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.95);
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-            transition: 0.4s;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            animation: fadeIn 0.8s ease;
         }
 
-        .dark-mode .container {
-            background: rgba(30,30,30,0.9);
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(20px);}
+            to {opacity: 1; transform: translateY(0);}
         }
 
         .header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .logo {
@@ -55,19 +49,49 @@
             color: #facc15;
         }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            transition: 0.3s;
+        h3 {
+            margin-bottom: 10px;
         }
 
-        input:focus {
-            border-color: #facc15;
-            box-shadow: 0 0 10px rgba(250,204,21,0.5);
+        /* Floating Input */
+
+        .input-group {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
             outline: none;
+            font-size: 14px;
+            background: transparent;
+        }
+
+        .input-group label {
+            position: absolute;
+            top: 50%;
+            left: 14px;
+            transform: translateY(-50%);
+            background: white;
+            padding: 0 5px;
+            color: #888;
+            transition: 0.3s;
+            pointer-events: none;
+        }
+
+        .input-group input:focus + label,
+        .input-group input:not(:placeholder-shown) + label {
+            top: 0;
+            font-size: 12px;
+            color: #facc15;
+        }
+
+        .input-group input:focus {
+            border-color: #facc15;
+            box-shadow: 0 0 10px rgba(250,204,21,0.4);
         }
 
         button {
@@ -83,20 +107,16 @@
 
         button:hover {
             transform: scale(1.03);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
         .card {
-            background: rgba(255,255,255,0.9);
+            background: #fff;
             padding: 20px;
             border-radius: 15px;
             margin-top: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: 0.3s;
-        }
-
-        .dark-mode .card {
-            background: #1e1e1e;
+            animation: fadeIn 0.5s ease;
         }
 
         .progress {
@@ -111,19 +131,13 @@
             height: 100%;
             background: linear-gradient(90deg, #facc15, #fbbf24);
             width: 0%;
-            transition: width 1s ease;
+            transition: width 1.5s ease;
         }
 
-        .toggle-dark {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            padding: 8px 12px;
-            border-radius: 20px;
-            background: #000;
-            color: #fff;
+        .countdown {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #eab308;
         }
 
         .loader {
@@ -142,10 +156,10 @@
             100% { transform: rotate(360deg); }
         }
 
-        @media(max-width: 600px){
+        @media(max-width:600px){
             .container{
-                margin: 10px;
-                padding: 20px;
+                margin:10px;
+                padding:20px;
             }
         }
     </style>
@@ -153,99 +167,95 @@
 
 <body>
 
-<div class="toggle-dark" onclick="toggleDark()">🌙 Dark Mode</div>
-
 <div class="container">
 
     <div class="header">
         <div class="logo">🏦 Yellow Bank</div>
-        <p>Premium Loan Management Portal</p>
+        <p>Premium Smart Loan Dashboard</p>
     </div>
 
     <div id="authSection">
-        <h3>Authenticate</h3>
-        <input id="phone" placeholder="Enter Phone Number" />
-        <input id="dob" placeholder="DD/MM/YYYY" />
-        <button onclick="triggerOTP()">Generate OTP</button>
+        <h3>🔐 Secure Login</h3>
 
-        <div id="otpSection" style="display:none;">
-            <input id="otp" placeholder="Enter OTP" />
-            <button onclick="verifyOTP()">Verify OTP</button>
+        <div class="input-group">
+            <input type="text" id="phone" placeholder=" " required />
+            <label>📱 Phone Number</label>
         </div>
+
+        <div class="input-group">
+            <input type="text" id="dob" placeholder=" " required />
+            <label>📅 DD/MM/YYYY</label>
+        </div>
+
+        <button onclick="authenticate()">Login Securely</button>
     </div>
 
     <div class="loader" id="loader"></div>
 
     <div id="loanSection" style="display:none;">
-        <h3>Your Loan Accounts</h3>
-        <div id="loanList"></div>
-    </div>
+        <div class="card">
+            <h3>Your Active Loan</h3>
+            Loan ID: YB1023<br>
+            Principal Pending: ₹2,50,000<br>
+            EMI: ₹12,500<br>
 
-    <div id="detailsSection"></div>
+            <div class="progress">
+                <div class="progress-bar" id="emiProgress"></div>
+            </div>
+
+            <div class="countdown" id="countdown"></div>
+        </div>
+    </div>
 
 </div>
 
 <script>
-function toggleDark(){
-    document.body.classList.toggle("dark-mode");
-}
+function authenticate(){
+    const phone=document.getElementById("phone").value;
+    const dob=document.getElementById("dob").value;
 
-function showLoader(show){
-    document.getElementById("loader").style.display = show ? "block" : "none";
-}
+    if(phone.length<10){
+        alert("Please enter valid phone number");
+        return;
+    }
 
-let currentPhone = "";
+    if(!dob.includes("/")){
+        alert("Please enter DOB in DD/MM/YYYY format");
+        return;
+    }
 
-async function triggerOTP(){
-    showLoader(true);
-    setTimeout(()=>showLoader(false),1000);
-    document.getElementById("otpSection").style.display="block";
-}
+    document.getElementById("loader").style.display="block";
 
-async function verifyOTP(){
-    showLoader(true);
     setTimeout(()=>{
-        showLoader(false);
+        document.getElementById("loader").style.display="none";
         document.getElementById("authSection").style.display="none";
         document.getElementById("loanSection").style.display="block";
-        loadLoans();
+
+        animateProgress();
+        startCountdown();
+    },1200);
+}
+
+function animateProgress(){
+    document.getElementById("emiProgress").style.width="65%";
+}
+
+function startCountdown(){
+    const dueDate=new Date();
+    dueDate.setDate(dueDate.getDate()+10);
+
+    const countdownEl=document.getElementById("countdown");
+
+    setInterval(()=>{
+        const now=new Date();
+        const diff=dueDate-now;
+        const days=Math.floor(diff/(1000*60*60*24));
+        countdownEl.innerText="Next EMI due in "+days+" days";
     },1000);
-}
-
-function loadLoans(){
-    const container=document.getElementById("loanList");
-    container.innerHTML="";
-
-    const card=document.createElement("div");
-    card.className="card";
-    card.innerHTML=`
-        <strong>Loan ID:</strong> YB1023<br>
-        <strong>Type:</strong> Personal Loan<br>
-        <strong>Tenure:</strong> 24 months
-        <button onclick="loadDetails()">View Details</button>
-    `;
-    container.appendChild(card);
-}
-
-function loadDetails(){
-    document.getElementById("detailsSection").innerHTML=`
-        <div class="card">
-            <h3>Loan Details</h3>
-            Principal Pending: ₹2,50,000<br>
-            Interest Rate: 8.5%<br>
-            EMI: ₹12,500<br>
-
-            <div class="progress">
-                <div class="progress-bar" style="width:60%"></div>
-            </div>
-
-            <button onclick="alert('Thanks for rating!')">Rate Chat</button>
-        </div>
-    `;
 }
 </script>
 
-<!-- Yellow.ai Widget -->
+<!-- Yellow.ai Super Agent Widget -->
 <script type="text/javascript">
   window.ymConfig = {
     "bot": "x1770833392774",
@@ -273,3 +283,4 @@ function loadDetails(){
 
 </body>
 </html>
+
